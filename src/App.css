@@ -24,7 +24,7 @@ body {
   width: 100%;
   height: 60px;
   list-style-type: none;
-  margin: 0%;
+  margin: 0;
   display: flex;
   flex-direction: row;
   color: white;
@@ -38,6 +38,7 @@ body {
   background-color: #293846;
 }
 
-.SideList .row #active {
-  background-color: #293846;
+/* Change #active to .active */
+.SideList .row.active {
+  background-color: #293846; /* Active link background color */
 }
