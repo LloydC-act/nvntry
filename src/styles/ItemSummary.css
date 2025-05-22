@@ -1,0 +1,29 @@
+.summary-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .summary-card {
+    flex: 1;
+    padding: 15px;
+    margin-right: 10px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .summary-card:last-child {
+    margin-right: 0;
+  }
+
+  .summary-details {
+  display: flex;
+  flex-direction: column;
+  }
+  .summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  }
+  
