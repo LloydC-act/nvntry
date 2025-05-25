@@ -1,44 +1,9 @@
-.App {
-  width: 100vw;
-  height: 100vh;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-}
-
-.Sidebar {
-  height: 100%;
-  width: 250px;
-  background-color: #B09FE4;
-}
-
-.SideList {
-  height: auto;
-  padding: 0;
-  width: 100%;
-}
-
-.SideList .row {
-  width: 100%;
-  height: 60px;
-  list-style-type: none;
-  margin: 0;
+.app-container {
   display: flex;
-  flex-direction: row;
-  color: white;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-.SideList .row:hover {
-  cursor: pointer;
-  background-color: #293846;
-}
-
-/* Change #active to .active */
-.SideList .row.active {
-  background-color: #293846; /* Active link background color */
+.content {
+  margin-left: 220px; /* Space for the sidebar */
+  padding: 20px;
+  flex-grow: 1; /* Allow content to grow */
 }

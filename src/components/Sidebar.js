@@ -1,27 +1,36 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import '../App.css';
-import { SideData } from './SideData';
+import { Link } from 'react-router-dom';
+import '../styles/Sidebar.css';
 
-function Sidebar() {
+const Sidebar = ({ onLogout }) => {
   return (
-    <div className='Sidebar'>
-      <ul className='SideList'>
-        {SideData.map((val, key) => {
-          return (
-            <li
-              key={key}
-              className={`row ${window.location.pathname === val.link ? 'active' : ''}`} // Use class for active state
-            >
-              <Link to={val.link} id='title'>
-                {val.title}
-              </Link>
-            </li>
-          );
-        })}
+    <div className="sidebar">
+      <h2>Menu</h2>
+      <ul className="menu">
+        <li>
+          <Link to="/dashboard">Dashboard</Link>
+        </li>
+        <li>
+          <Link to="/inventory">Inventory</Link>
+        </li>
+        <li>
+          <Link to="/management">Management</Link>
+        </li>
+        <li>
+          <Link to="/stock-in">Add Product</Link>
+        </li>
+        <li>
+          <Link to="/product">New Product</Link>
+        </li>
+        <li>
+          <Link to="/stock-out">Stock Out</Link>
+        </li>        
       </ul>
+      <button className="logout-button" onClick={onLogout}>
+        Logout
+      </button>
     </div>
   );
-}
+};
 
 export default Sidebar;
