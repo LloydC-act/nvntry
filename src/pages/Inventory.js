@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../components/supabaseClient';
+import { QRCodeSVG } from 'qrcode.react'; // Use QRCodeSVG for rendering
+import '../styles/Table.css'; // Import the CSS for styling
 
 const ItemList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [qrCodeData, setQrCodeData] = useState(null); // State to hold QR code data
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,14 +29,16 @@ const ItemList = () => {
     fetchProducts();
   }, []);
 
+  const handleQrCodeGeneration = (product) => {
+    setQrCodeData(product.serial_number); // Set QR code data to the product's serial number
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="item-list-container">
       <h2>Products</h2>
-      <div className="summary-container">
-      </div>
       <table className="item-table">
         <thead>
           <tr>
@@ -47,6 +52,7 @@ const ItemList = () => {
             <th>Image</th>
             <th>Receive On</th>
             <th>Low Stock</th>
+            <th>QR Code</th> {/* New column for QR code */}
           </tr>
         </thead>
         <tbody>
@@ -64,10 +70,21 @@ const ItemList = () => {
               </td>
               <td>{new Date(product.receive_on).toLocaleDateString()}</td>
               <td>{product.quantity <= 5 ? 'Yes' : 'No'}</td>
+              <td>
+                <button onClick={() => handleQrCodeGeneration(product)}>Generate QR Code</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* QR Code Display */}
+      {qrCodeData && (
+        <div className="qr-code-container">
+          <h3>Generated QR Code</h3>
+          <QRCodeSVG value={qrCodeData} size={128} /> {/* Display QR code */}
+        </div>
+      )}
     </div>
   );
 };
