@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../components/supabaseClient';
-import { QRCodeSVG } from 'qrcode.react'; // Use QRCodeSVG for rendering
-import '../styles/Table.css'; // Import the CSS for styling
+import { QRCodeSVG } from 'qrcode.react';
+import html2canvas from 'html2canvas'; // Import html2canvas for capturing the QR code
+import '../styles/Table.css';
 
 const ItemList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [qrCodeData, setQrCodeData] = useState(null); // State to hold QR code data
+  const [qrCodeData, setQrCodeData] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for QR code
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const { data, error } = await supabase
-          .from('products') // Replace with your table name
-          .select('*'); // Select all columns
+          .from('products')
+          .select('*');
 
         if (error) throw error;
 
@@ -30,7 +32,41 @@ const ItemList = () => {
   }, []);
 
   const handleQrCodeGeneration = (product) => {
-    setQrCodeData(product.serial_number); // Set QR code data to the product's serial number
+    setQrCodeData(product.serial_number);
+    setSelectedProduct(product); // Set the selected product
+  };
+
+  const uploadQrCode = async () => {
+    if (!qrCodeData || !selectedProduct) return;
+
+    const qrCodeElement = document.getElementById('qr-code');
+    const canvas = await html2canvas(qrCodeElement);
+    const dataUrl = canvas.toDataURL('image/png');
+
+    const { data, error } = await supabase.storage
+      .from('qr-codes') // Ensure this bucket exists
+      .upload(`qr-${selectedProduct.serial_number}.png`, dataUrl.split(',')[1], {
+        contentType: 'image/png',
+      });
+
+    if (error) {
+      console.error('Error uploading QR code:', error);
+    } else {
+      const qrCodeUrl = `${process.env.REACT_APP_SUPABASE_URL}/storage/v1/object/public/qr-codes/${data.path}`;
+      await updateProductWithQrCodeUrl(selectedProduct.id, qrCodeUrl);
+      console.log('QR code uploaded and URL updated:', qrCodeUrl);
+    }
+  };
+
+  const updateProductWithQrCodeUrl = async (productId, qrCodeUrl) => {
+    const { error } = await supabase
+      .from('products') // Replace with your table name
+      .update({ qr_code_url: qrCodeUrl }) // Update the qr_code_url field
+      .eq('id', productId); // Match the product by ID
+
+    if (error) {
+      console.error('Error updating product QR code URL:', error);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -52,7 +88,7 @@ const ItemList = () => {
             <th>Image</th>
             <th>Receive On</th>
             <th>Low Stock</th>
-            <th>QR Code</th> {/* New column for QR code */}
+            <th>QR Code</th>
           </tr>
         </thead>
         <tbody>
@@ -80,9 +116,10 @@ const ItemList = () => {
 
       {/* QR Code Display */}
       {qrCodeData && (
-        <div className="qr-code-container">
+        <div className="qr-code-container" id="qr-code">
           <h3>Generated QR Code</h3>
-          <QRCodeSVG value={qrCodeData} size={128} /> {/* Display QR code */}
+          <QRCodeSVG value={qrCodeData} size={128} />
+          <button onClick={uploadQrCode}>Upload QR Code</button>
         </div>
       )}
     </div>
