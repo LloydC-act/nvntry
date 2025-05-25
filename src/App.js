@@ -8,7 +8,6 @@ import PrivateRoute from './components/PrivateRoute';
 import { useState } from 'react';
 import StockIn from './pages/StockIn';
 import ProductCreation from './pages/ProductCreation';
-import StockOut from './pages/StockOut';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -47,11 +46,7 @@ const App = () => {
             <Route 
               path="/product" 
               element={<PrivateRoute element={<ProductCreation />} isAuthenticated={isAuthenticated} />} 
-            />
-            <Route 
-              path="/stock-out" 
-              element={<PrivateRoute element={<StockOut />} isAuthenticated={isAuthenticated} />} 
-            />            
+            />         
           </Routes>
         </div>
       </div>

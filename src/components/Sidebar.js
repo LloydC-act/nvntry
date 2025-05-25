@@ -21,10 +21,7 @@ const Sidebar = ({ onLogout }) => {
         </li>
         <li>
           <Link to="/product">New Product</Link>
-        </li>
-        <li>
-          <Link to="/stock-out">Stock Out</Link>
-        </li>        
+        </li>     
       </ul>
       <button className="logout-button" onClick={onLogout}>
         Logout
