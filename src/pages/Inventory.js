@@ -8,8 +8,7 @@ const ItemList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [qrCodeData, setQrCodeData] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for QR code
+  const [qrCodeData, setQrCodeData] = useState({}); // Object to hold QR code data for each product
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -32,28 +31,28 @@ const ItemList = () => {
   }, []);
 
   const handleQrCodeGeneration = (product) => {
-    setQrCodeData(product.serial_number);
-    setSelectedProduct(product); // Set the selected product
+    setQrCodeData(prev => ({ ...prev, [product.id]: product.serial_number })); // Update QR code data for specific product
   };
 
-  const uploadQrCode = async () => {
-    if (!qrCodeData || !selectedProduct) return;
+  const uploadQrCode = async (productId) => {
+    const serialNumber = qrCodeData[productId];
+    if (!serialNumber) return;
 
-    const qrCodeElement = document.getElementById('qr-code');
+    const qrCodeElement = document.getElementById(`qr-code-${productId}`);
     const canvas = await html2canvas(qrCodeElement);
     const dataUrl = canvas.toDataURL('image/png');
 
     const { data, error } = await supabase.storage
-      .from('qr-codes') // Ensure this bucket exists
-      .upload(`qr-${selectedProduct.serial_number}.png`, dataUrl.split(',')[1], {
+      .from('product-images') // Ensure this bucket exists
+      .upload(`qr-${serialNumber}.png`, dataUrl.split(',')[1], {
         contentType: 'image/png',
       });
 
     if (error) {
       console.error('Error uploading QR code:', error);
     } else {
-      const qrCodeUrl = `${process.env.REACT_APP_SUPABASE_URL}/storage/v1/object/public/qr-codes/${data.path}`;
-      await updateProductWithQrCodeUrl(selectedProduct.id, qrCodeUrl);
+      const qrCodeUrl = `${process.env.REACT_APP_SUPABASE_URL}/storage/v1/object/public/product-images/${data.path}`;
+      await updateProductWithQrCodeUrl(productId, qrCodeUrl);
       console.log('QR code uploaded and URL updated:', qrCodeUrl);
     }
   };
@@ -108,20 +107,17 @@ const ItemList = () => {
               <td>{product.quantity <= 5 ? 'Yes' : 'No'}</td>
               <td>
                 <button onClick={() => handleQrCodeGeneration(product)}>Generate QR Code</button>
+                {qrCodeData[product.id] && (
+                  <div id={`qr-code-${product.id}`} className="qr-code-display">
+                    <QRCodeSVG value={qrCodeData[product.id]} size={128} />
+                    <button className="upload-qr-button" onClick={() => uploadQrCode(product.id)}>Upload QR Code</button>
+                  </div>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {/* QR Code Display */}
-      {qrCodeData && (
-        <div className="qr-code-container" id="qr-code">
-          <h3>Generated QR Code</h3>
-          <QRCodeSVG value={qrCodeData} size={128} />
-          <button onClick={uploadQrCode}>Upload QR Code</button>
-        </div>
-      )}
     </div>
   );
 };

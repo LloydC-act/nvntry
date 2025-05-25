@@ -32,3 +32,16 @@ h2 {
   max-width: 100px; /* Set a max width for images */
   height: auto; /* Maintain aspect ratio */
 }
+
+
+.qr-code-display {
+  margin-top: 10px; /* Adjust the top margin as needed */
+  margin-bottom: 10px; /* Adjust the bottom margin as needed */
+  display: flex;
+  flex-direction: column; /* Stack QR code and button vertically */
+  align-items: center; /* Center align the QR code and button */
+}
+
+.upload-qr-button {
+  margin-top: 10px; /* Adjust the top margin as needed */
+}
