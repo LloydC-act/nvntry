@@ -1,11 +1,12 @@
 .card-container {
   display: flex;
-  justify-content: center; /* Center horizontally */
+  justify-content: space-between; /* Center horizontally */
   align-items: center; /* Center vertically, if needed */
   padding: 20px;
   background-color: #B09FE4;
   height: 100vh; /* Make the container full height of the viewport */
   gap: 20px;
+  margin-top: 20px;
 }
 
 /* Other existing styles remain the same */
@@ -17,6 +18,8 @@
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
+  flex: 1;
+  margin: 10px;
 }
 
 .card:hover {
@@ -40,6 +43,7 @@ h4 {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 10px;
 }
 
 .btn:hover {
@@ -49,7 +53,6 @@ h4 {
 /* Modal styles */
 .modal {
   position: fixed;
-  top: 0;
   left: 0;
   width: 100%;
   height: 100%;
@@ -71,4 +74,24 @@ h4 {
   cursor: pointer;
   float: right;
   font-size: 24px;
+}
+
+.supplier-list {
+  margin-bottom: 20px;
+}
+
+.supplier-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px; /* Space between cards */
+  justify-content: flex-start; /* Align cards to the left */
+}
+
+.supplier-card {
+  background-color: #B09FE4; /* Card background */
+  border: 1px solid #000; /* Card border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px;
+  box-shadow: 0 2px 5px #0505051a; /* Shadow effect */
+  flex: 1 1 calc(30% - 10px); /* Responsive card layout */
 }

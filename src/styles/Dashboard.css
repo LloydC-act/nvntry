@@ -1,11 +1,13 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #e0e0ff; /* Light purple background */
+  background-color: #B09FE4; /* Light purple background */
 }
 
 .dashboard {
-  padding: 20px;
+  background-color: #B09FE4; /* Set the background color for the dashboard */
+  min-height: 100vh; /* Ensure it covers the full height of the viewport */
+  padding: 20px; /* Add some padding */
 }
 
 .dashboard-header {
@@ -16,10 +18,8 @@ body {
 }
 
 .header-content {
-  display: flex;
-  align-items: center; /* Align items vertically */
-  justify-content: space-between; /* Space between greeting and search bar */
-  margin-top: 10px;
+  display: flex; /* Flexbox for header content layout */
+  justify-content: space-between; /* Space between greeting and search */
 }
 
 .greeting {
@@ -93,4 +93,81 @@ body {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+}
+
+
+.notification-card {
+  position: absolute; /* Position it in the upper right corner */
+  top: 20px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  background-color: #f8d7da; /* Light red background */
+  color: #721c24; /* Dark red text */
+  padding: 15px; /* Padding around the text */
+  border: 1px solid #f5c6cb; /* Border color */
+  border-radius: 5px; /* Rounded corners */
+  z-index: 1000; /* Bring it to the front */
+}
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it appears above other content */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 0;
+  border-radius: 5px;
+  width: 400px; /* Set a width for modal */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+  cursor: pointer;
+  float: right;
+  font-size: 20px;
+}
+
+.modal-content ul {
+  list-style-type: none; /* Remove bullets */
+  padding: 0; /* Remove default padding */
+}
+
+.modal-content li {
+  margin: 10px 0; /* Add margin between suppliers */
+}
+
+
+
+.report-card h3 {
+  margin: 0 0 10px;
+}
+
+.report-card ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.report-card li {
+  margin-bottom: 5px;
+}
+
+.report-card, .stock-movements {
+  background-color: #e9a5f1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.report-card h3, .stock-movements h3 {
+  margin: 0 0 10px;
 }

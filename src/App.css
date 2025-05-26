@@ -3,7 +3,6 @@
 }
 
 .content {
-  margin-left: 220px; /* Space for the sidebar */
   padding: 20px;
   flex-grow: 1; /* Allow content to grow */
 }

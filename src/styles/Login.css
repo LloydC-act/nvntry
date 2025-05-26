@@ -18,17 +18,20 @@ body {
 
 .logoContainer {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column; /* Stack logo and text vertically */
+  align-items: center; /* Center align the items */
+  margin-bottom: 20px; /* Adjust spacing below the logo */
 }
 
 .logo {
-  margin-right: 10px;
+  width: 50px; /* Adjust logo size */
+  height: auto; /* Maintain aspect ratio */
 }
 
-.welcomeText {
-  text-align: center; /* Center text */
-  color: #333; /* Text color */
+.logoText {
+  font-size: 24px; /* Adjust font size */
+  font-weight: bold;
+  text-align: center; /* Center align the text */
 }
 
 .subText {

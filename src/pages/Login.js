@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
+import logo from '../components/haah.jfif'; // Import the logo image
 
 const Login = ({ setIsAuthenticated }) => {
   const [password, setPassword] = useState('');
@@ -19,8 +20,12 @@ const Login = ({ setIsAuthenticated }) => {
     <div className="body">
       <div className="loginBox">
         <div className="logoContainer">
-          <img src="https://placehold.co/50x50" alt="Logo" className="logo" />
-          <h1 className="logoText">Inventory</h1>
+          <img 
+            src={logo} // Use the imported logo
+            alt="Invento Logo" 
+            className="logo" 
+          />
+          <h1 className="logoText">Invento</h1>
         </div>
         <h2 className="welcomeText">Welcome👋</h2>
         <p className="subText">Please login here</p>

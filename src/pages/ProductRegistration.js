@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from './supabaseClient'; // Adjust the import based on your structure
 import QRCode from 'qrcode.react';
+import '../styles/ProductRegistration.css'; // Import CSS for styling
 
 const ProductRegistration = () => {
   const [formData, setFormData] = useState({
@@ -29,29 +30,16 @@ const ProductRegistration = () => {
 
     const { data, error } = await supabase
       .from('products')
-      .insert([
-        {
-          name: formData.name,
-          brand: formData.brand,
-          model: formData.model,
-          category: formData.category,
-          serial_number: formData.serial_number,
-          quantity: formData.quantity,
-          price: formData.price,
-          product_image_url: formData.product_image_url,
-          low_stock: formData.low_stock,
-        },
-      ]);
+      .insert([formData]);
 
     if (error) {
       console.error('Error inserting product:', error);
     } else {
       console.log('Product registered:', data);
-     
-      const generatedQrCodeUrl = `${data[0].serial_number}`; // You can customize the content as needed
+      const generatedQrCodeUrl = data[0].serial_number; // Customize the content as needed
       setQrCodeUrl(generatedQrCodeUrl);
 
-
+      // Reset the form
       setFormData({
         name: '',
         brand: '',
@@ -67,10 +55,10 @@ const ProductRegistration = () => {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto' }}>
+    <div className="form-container">
       <form onSubmit={handleSubmit}>
         <h2>Product Registration</h2>
-        <div>
+        <div className="form-group">
           <label>Name:</label>
           <input
             type="text"
@@ -80,7 +68,7 @@ const ProductRegistration = () => {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Brand:</label>
           <input
             type="text"
@@ -89,7 +77,7 @@ const ProductRegistration = () => {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Model:</label>
           <input
             type="text"
@@ -98,7 +86,7 @@ const ProductRegistration = () => {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Category:</label>
           <input
             type="text"
@@ -107,7 +95,7 @@ const ProductRegistration = () => {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Serial Number:</label>
           <input
             type="text"
@@ -117,7 +105,7 @@ const ProductRegistration = () => {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Quantity:</label>
           <input
             type="number"
@@ -127,7 +115,7 @@ const ProductRegistration = () => {
             min="0"
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Price:</label>
           <input
             type="number"
@@ -137,7 +125,7 @@ const ProductRegistration = () => {
             step="0.01"
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Product Image URL:</label>
           <input
             type="text"
@@ -146,7 +134,7 @@ const ProductRegistration = () => {
             onChange={handleChange}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Low Stock:</label>
           <input
             type="checkbox"
@@ -159,7 +147,7 @@ const ProductRegistration = () => {
       </form>
 
       {qrCodeUrl && (
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div className="qr-code-container">
           <h3>Generated QR Code:</h3>
           <QRCode value={qrCodeUrl} />
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../components/supabaseClient'; // Import your Supabase client
 import { useNavigate } from 'react-router-dom'; // Use useNavigate instead
 import '../styles/StylesManagement.css'; // Ensure this CSS file is created
@@ -11,6 +11,21 @@ const Management = () => {
     contact: '',
     address: '',
   });
+  const [suppliers, setSuppliers] = useState([]); // State to store suppliers
+
+  // Fetch suppliers on component mount
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      const { data, error } = await supabase.from('suppliers').select('*');
+      if (error) {
+        console.error('Error fetching suppliers:', error);
+      } else {
+        console.log('Fetched Suppliers:', data);
+        setSuppliers(data);
+      }
+    };
+    fetchSuppliers();
+  }, []);
 
   const toggleModal = () => {
     setModalOpen(!isModalOpen);
@@ -39,6 +54,12 @@ const Management = () => {
       if (error) throw error;
 
       alert('Supplier added successfully!');
+      const { data: updatedData, error: fetchError } = await supabase.from('suppliers').select('*');
+      if (fetchError) {
+        console.error('Error fetching suppliers after adding:', fetchError);
+      } else {
+        setSuppliers(updatedData); // Update suppliers state
+      }
       toggleModal();
     } catch (error) {
       console.error('Error:', error);
@@ -48,6 +69,19 @@ const Management = () => {
 
   return (
     <div>
+      <div className="supplier-list">
+        <h2>Registered Suppliers</h2>
+        <div className="supplier-cards">
+          {suppliers.map((supplier) => (
+            <div className="supplier-card" key={supplier.id}>
+              <strong>{supplier.name}</strong>
+              <p>Contact: {supplier.contact}</p>
+              <p>Address: {supplier.address}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      
       <div className="card-container">
         <div className="card">
           <img src="https://via.placeholder.com/100" alt="Add Products" />

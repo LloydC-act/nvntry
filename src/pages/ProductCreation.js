@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../components/supabaseClient'; // Adjust the import based on your structure
+import { supabase } from '../components/supabaseClient';
 import '../styles/ProductCreation.css'; // Import CSS for styling
 
 const ProductCreation = () => {
@@ -34,7 +34,7 @@ const ProductCreation = () => {
     } else {
       console.log('Product added:', data);
       alert('Product created successfully!');
-      setFormData({ // Reset the form
+      setFormData({
         name: '',
         brand: '',
         model: '',
@@ -47,35 +47,35 @@ const ProductCreation = () => {
   };
 
   return (
-    <div className="body">
+    <div className="form-container">
       <h2>Create New Product</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:  </label>
+      <form onSubmit={handleSubmit} className="product-form">
+        <div className="form-group">
+          <label>Name:</label>
           <input type="text" name="name" value={formData.name} onChange={handleChange} required />
         </div>
-        <div>
-          <label>Brand: </label>
+        <div className="form-group">
+          <label>Brand:</label>
           <input type="text" name="brand" value={formData.brand} onChange={handleChange} />
         </div>
-        <div>
-          <label>Model: </label>
+        <div className="form-group">
+          <label>Model:</label>
           <input type="text" name="model" value={formData.model} onChange={handleChange} />
         </div>
-        <div>
-          <label>Category:  </label>
+        <div className="form-group">
+          <label>Category:</label>
           <input type="text" name="category" value={formData.category} onChange={handleChange} />
         </div>
-        <div>
-          <label>Quantity:  </label>
+        <div className="form-group">
+          <label>Quantity:</label>
           <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} min="0" />
         </div>
-        <div>
-          <label>Price: </label>
+        <div className="form-group">
+          <label>Price:</label>
           <input type="number" name="price" value={formData.price} onChange={handleChange} step="0.01" />
         </div>
-        <div>
-          <label>Product Image URL: </label>
+        <div className="form-group">
+          <label>Product Image URL:</label>
           <input type="text" name="product_image_url" value={formData.product_image_url} onChange={handleChange} />
         </div>
         <button type="submit">Create Product</button>
