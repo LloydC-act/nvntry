@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../components/supabaseClient'; // Import your Supabase client
 import { useNavigate } from 'react-router-dom'; // Use useNavigate instead
 import '../styles/StylesManagement.css'; // Ensure this CSS file is created
+import { PackagePlus, UserPlus } from 'lucide-react'; // Import icons
+
 
 const Management = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -83,19 +85,22 @@ const Management = () => {
       </div>
       
       <div className="card-container">
-        <div className="card">
-          <img src="https://via.placeholder.com/100" alt="Add Products" />
-          <h4>Add Products</h4>
-          <button className="btn" onClick={() => navigate('/stock-in')}>
-            Go to Product Registration
-          </button>
-        </div>
-        <div className="card">
-          <img src="https://via.placeholder.com/100" alt="Add Suppliers" />
-          <h4>Add Suppliers</h4>
-          <button className="btn" onClick={toggleModal}>Add</button>
-        </div>
+      <div className="card">
+        <PackagePlus size={48} strokeWidth={2.5} className="icon" />
+        <h4>Add Products</h4>
+        <button className="btn" onClick={() => navigate('/stock-in')}>
+          Go to Product Registration
+        </button>
       </div>
+
+      <div className="card">
+        <UserPlus size={48} strokeWidth={2.5} className="icon" />
+        <h4>Add Suppliers</h4>
+        <button className="btn" onClick={toggleModal}>
+          Add
+        </button>
+      </div>
+    </div>
       
       {isModalOpen && (
         <div className="modal">

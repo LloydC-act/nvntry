@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../components/supabaseClient';
 import '../styles/Dashboard.css'; 
+import { PDFDocument, rgb } from 'pdf-lib';
 
 const Dashboard = () => {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -14,10 +15,7 @@ const Dashboard = () => {
   const [notification, setNotification] = useState('');
   const [suppliers, setSuppliers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [stockReport, setStockReport] = useState([]);
   const [stockMovements, setStockMovements] = useState([]);
-
-  const userName = "Jake"; // Replace with dynamic user data if available
 
   const fetchData = async () => {
     try {
@@ -92,42 +90,6 @@ const Dashboard = () => {
     setModalOpen(false);
   };
 
-  const addStock = async (productId, quantity, supplierId) => {
-    const { data, error } = await supabase
-      .from('stock_in')
-      .insert([{ product_id: productId, quantity, supplier_id: supplierId }]);
-
-    if (error) {
-      console.error('Error adding stock:', error);
-    } else {
-      const product = items.find(item => item.id === productId);
-      await supabase
-        .from('products')
-        .update({ quantity: product.quantity + quantity })
-        .eq('id', productId);
-      fetchData(); // Refresh data
-      fetchStockMovements(); // Refresh stock movements
-    }
-  };
-
-  const removeStock = async (productId, quantity) => {
-    const { data, error } = await supabase
-      .from('stock_out')
-      .insert([{ product_id: productId, quantity }]);
-
-    if (error) {
-      console.error('Error removing stock:', error);
-    } else {
-      const product = items.find(item => item.id === productId);
-      await supabase
-        .from('products')
-        .update({ quantity: product.quantity - quantity })
-        .eq('id', productId);
-      fetchData(); // Refresh data
-      fetchStockMovements(); // Refresh stock movements
-    }
-  };
-
   const formatDate = (date) => {
     return new Date(date).toLocaleString([], {
       year: 'numeric',
@@ -139,6 +101,77 @@ const Dashboard = () => {
     });
   };
 
+  const generatePDF = async () => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 800]);
+
+    // Title
+    page.drawText('Inventory Report', {
+      x: 50,
+      y: 750,
+      size: 24,
+      color: rgb(0, 0, 0),
+    });
+
+    // Draw a line
+    page.drawLine({
+      start: { x: 50, y: 740 },
+      end: { x: 550, y: 740 },
+      thickness: 2,
+      color: rgb(0, 0, 0),
+    });
+
+    // Inventory Items
+    let yPosition = 700;
+    const tableColumn = ["Item Name", "Category", "Quantity", "Low Stock"];
+    page.drawText(tableColumn.join(' | '), { x: 50, y: yPosition, size: 12 });
+    yPosition -= 20;
+
+    filteredItems.forEach(item => {
+      page.drawText(`${item.name} | ${item.category} | ${item.quantity} | ${item.quantity <= 5 ? 'Yes' : 'No'}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+      });
+      yPosition -= 20;
+    });
+
+    // Stock Movements
+    yPosition -= 20;
+    page.drawText('Stock Movements', {
+      x: 50,
+      y: yPosition,
+      size: 18,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 20;
+
+    const movementColumn = ["Date", "Product Name", "Supplier", "Quantity", "Type"];
+    page.drawText(movementColumn.join(' | '), { x: 50, y: yPosition, size: 12 });
+    yPosition -= 20;
+
+    stockMovements.forEach(movement => {
+      const productName = items.find(item => item.id === movement.product_id)?.name || 'Unknown Product';
+      const supplierName = movement.supplier_id ? suppliers.find(supplier => supplier.id === movement.supplier_id)?.name : 'N/A';
+      page.drawText(`${formatDate(movement.date)} | ${productName} | ${supplierName} | ${Math.abs(movement.quantity)} | ${movement.quantity > 0 ? 'Added' : 'Removed'}`, {
+        x: 50,
+        y: yPosition,
+        size: 12,
+      });
+      yPosition -= 20;
+    });
+
+    // Save the PDF
+    const pdfBytes = await pdfDoc.save();
+
+    // Trigger download
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'inventory_report.pdf';
+    link.click();
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -146,9 +179,6 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <h1>Inventory Management</h1>
         <div className="header-content">
-          <div className="greeting">
-            <h2>Hello, {userName}</h2>
-          </div>
           <div className="search-container">
             <input
               type="text"
@@ -158,6 +188,9 @@ const Dashboard = () => {
               className="search-input"
             />
           </div>
+          <button onClick={generatePDF} className="generate-report-button">
+            Generate PDF Report
+          </button>
         </div>
       </header>
       <div className="table-section">

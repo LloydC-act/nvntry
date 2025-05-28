@@ -99,7 +99,7 @@ const ItemList = () => {
               <td>{product.category}</td>
               <td>{product.serial_number}</td>
               <td>{product.quantity}</td>
-              <td>${product.price.toFixed(2)}</td>
+              <td>₱{product.price.toFixed(2)}</td>
               <td>
                 <img src={product.product_image_url} alt={product.name} className="item-image" />
               </td>
