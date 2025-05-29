@@ -48,7 +48,7 @@ const ProductCreation = () => {
 
   return (
     <div className="form-container">
-      <h2>Create New Product</h2>
+      <h2>Add New Product</h2>
       <form onSubmit={handleSubmit} className="product-form">
         <div className="form-group">
           <label>Name:</label>
