@@ -17,10 +17,10 @@ const Sidebar = ({ onLogout }) => {
           <Link to="/management">Management</Link>
         </li>
         <li>
-          <Link to="/stock-in">Add Product</Link>
+          <Link to="/stock-in">Stock In</Link>
         </li>
         <li>
-          <Link to="/product">New Product</Link>
+          <Link to="/product">Add New Product</Link>
         </li>     
       </ul>
       <button className="logout-button" onClick={onLogout}>

@@ -88,7 +88,7 @@ const Management = () => {
       <div className="card">
         <PackagePlus size={48} strokeWidth={2.5} className="icon" />
         <h4>Add Products</h4>
-        <button className="btn" onClick={() => navigate('/stock-in')}>
+        <button className="btn" onClick={() => navigate('/ProductCreation')}>
           Go to Product Registration
         </button>
       </div>
