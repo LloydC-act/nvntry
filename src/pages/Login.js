@@ -48,7 +48,6 @@ const Login = ({ setIsAuthenticated }) => {
         <button className="button" onClick={handleLogin}>
           Login
         </button>
-        <button className="textButton">Forgot Password?</button>
       </div>
     </div>
   );
