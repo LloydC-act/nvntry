@@ -3,6 +3,7 @@ import { supabase } from '../components/supabaseClient';
 import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import '../styles/Table.css';
+import '../styles/ItemSummary.css'
 
 const ItemList = () => {
   const [products, setProducts] = useState([]);
@@ -72,6 +73,14 @@ const ItemList = () => {
     return products.reduce((total, product) => total + product.quantity, 0);
   };
 
+  const getLowStockCount = () => {
+    return products.filter(product => product.quantity <= 5).length;
+  };
+
+  const getTotalInventoryValue = () => {
+    return products.reduce((sum, product) => sum + product.price * product.quantity, 0);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -122,21 +131,21 @@ const ItemList = () => {
           ))}
         </tbody>
       </table>
-
-      {/* Overall Quantity Table */}
-      <h3>Inventory Summary</h3>
-      <table className="item-table summary-table">
-        <thead>
-          <tr>
-            <th>Total Items in Stock</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{getTotalQuantity()}</td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Inventory Summary Cards */}
+        <div className="summary-container">
+          <div className="summary-card">
+            <h4>Total Items in Stock</h4>
+            <p>{getTotalQuantity()}</p>
+          </div>
+          <div className="summary-card">
+            <h4>Total Low Stock Items</h4>
+            <p>{getLowStockCount()}</p>
+          </div>
+          <div className="summary-card">
+            <h4>Total Inventory Value</h4>
+            <p>₱{getTotalInventoryValue().toFixed(2)}</p>
+          </div>
+        </div>
     </div>
   );
 };
