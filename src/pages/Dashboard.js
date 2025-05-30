@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../components/supabaseClient';
-import '../styles/Dashboard.css'; 
+import '../styles/Dashboard.css';
 import { PDFDocument, rgb } from 'pdf-lib';
 
 const Dashboard = () => {
@@ -19,10 +19,7 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const { data: productsData, error: productsError } = await supabase
-        .from('products')
-        .select('*');
-
+      const { data: productsData, error: productsError } = await supabase.from('products').select('*');
       if (productsError) throw productsError;
 
       setTotalProducts(productsData.length);
@@ -31,32 +28,36 @@ const Dashboard = () => {
       setItems(productsData);
       setFilteredItems(productsData);
 
-      const { data: suppliersData, error: suppliersError } = await supabase
-        .from('suppliers')
-        .select('*');
-
+      const { data: suppliersData, error: suppliersError } = await supabase.from('suppliers').select('*');
       if (suppliersError) throw suppliersError;
 
+      setSuppliers(suppliersData);
       setSuppliersCount(suppliersData.length);
 
-      if (productsData.some(item => item.quantity === 0)) {
-        setNotification('Some items are out of stock!');
-      } else if (productsData.some(item => item.quantity <= 5)) {
-        setNotification('Some items are low in stock!');
-      } else {
-        setNotification('');
-      }
+      const low = productsData.some(item => item.quantity <= 5);
+      const out = productsData.some(item => item.quantity === 0);
+      setNotification(out ? 'Some items are out of stock!' : low ? 'Some items are low in stock!' : '');
     } catch (err) {
-      console.error(err.message);
+      console.error('Error fetching data:', err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchStockMovements = async () => {
-    const { data: stockInData } = await supabase.from('stock_in').select('*');
-    const { data: stockOutData } = await supabase.from('stock_out').select('*');
-    setStockMovements([...stockInData, ...stockOutData].sort((a, b) => new Date(b.date) - new Date(a.date))); // Sort by date
+    try {
+      const { data: stockInData, error: inError } = await supabase.from('stock_in').select('*');
+      const { data: stockOutData, error: outError } = await supabase.from('stock_out').select('*');
+      if (inError || outError) throw new Error('Failed to fetch stock movements.');
+
+      const stockInWithType = stockInData.map(item => ({ ...item, type: 'in' }));
+      const stockOutWithType = stockOutData.map(item => ({ ...item, type: 'out' }));
+
+      const combined = [...stockInWithType, ...stockOutWithType].sort((a, b) => new Date(b.date) - new Date(a.date));
+      setStockMovements(combined);
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   useEffect(() => {
@@ -73,22 +74,11 @@ const Dashboard = () => {
     setFilteredItems(results);
   }, [searchTerm, items]);
 
-  const handleSuppliersClick = async () => {
-    const { data: suppliersData, error } = await supabase
-      .from('suppliers')
-      .select('*');
-    
-    if (error) {
-      console.error('Error fetching suppliers:', error);
-    } else {
-      setSuppliers(suppliersData);
-      setModalOpen(true);
-    }
+  const handleSuppliersClick = () => {
+    setModalOpen(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-  };
+  const closeModal = () => setModalOpen(false);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleString([], {
@@ -97,74 +87,57 @@ const Dashboard = () => {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false // Use 24-hour format
+      hour12: false,
     });
   };
 
   const generatePDF = async () => {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 800]);
+    let page = pdfDoc.addPage([600, 800]);
+    let y = 750;
 
-    // Title
-    page.drawText('Inventory Report', {
-      x: 50,
-      y: 750,
-      size: 24,
-      color: rgb(0, 0, 0),
-    });
+    const drawLine = () => {
+      page.drawLine({ start: { x: 50, y }, end: { x: 550, y }, thickness: 1, color: rgb(0, 0, 0) });
+      y -= 10;
+    };
 
-    // Draw a line
-    page.drawLine({
-      start: { x: 50, y: 740 },
-      end: { x: 550, y: 740 },
-      thickness: 2,
-      color: rgb(0, 0, 0),
-    });
+    const newPage = () => {
+      page = pdfDoc.addPage([600, 800]);
+      y = 750;
+    };
 
-    // Inventory Items
-    let yPosition = 700;
-    const tableColumn = ["Item Name", "Category", "Quantity", "Low Stock"];
-    page.drawText(tableColumn.join(' | '), { x: 50, y: yPosition, size: 12 });
-    yPosition -= 20;
+    const drawText = (text, size = 12) => {
+      if (y < 50) newPage();
+      page.drawText(text, { x: 50, y, size, color: rgb(0, 0, 0) });
+      y -= 18;
+    };
 
+    drawText('Inventory Report', 20);
+    drawLine();
+
+    drawText('Inventory Items:', 16);
+    drawText('Item Name | Category | Quantity | Low Stock');
     filteredItems.forEach(item => {
-      page.drawText(`${item.name} | ${item.category} | ${item.quantity} | ${item.quantity <= 5 ? 'Yes' : 'No'}`, {
-        x: 50,
-        y: yPosition,
-        size: 12,
-      });
-      yPosition -= 20;
+      drawText(`${item.name} | ${item.category} | ${item.quantity} | ${item.quantity <= 5 ? 'Yes' : 'No'}`);
     });
 
-    // Stock Movements
-    yPosition -= 20;
-    page.drawText('Stock Movements', {
-      x: 50,
-      y: yPosition,
-      size: 18,
-      color: rgb(0, 0, 0),
-    });
-    yPosition -= 20;
+    y -= 10;
+    drawLine();
+    drawText('Stock Movements:', 16);
+    drawText('Date | Product | Supplier | Quantity | Type');
 
-    const movementColumn = ["Date", "Product Name", "Supplier", "Quantity", "Type"];
-    page.drawText(movementColumn.join(' | '), { x: 50, y: yPosition, size: 12 });
-    yPosition -= 20;
+    const sortedMovements = [...stockMovements].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    stockMovements.forEach(movement => {
-      const productName = items.find(item => item.id === movement.product_id)?.name || 'Unknown Product';
-      const supplierName = movement.supplier_id ? suppliers.find(supplier => supplier.id === movement.supplier_id)?.name : 'N/A';
-      page.drawText(`${formatDate(movement.date)} | ${productName} | ${supplierName} | ${Math.abs(movement.quantity)} | ${movement.quantity > 0 ? 'Added' : 'Removed'}`, {
-        x: 50,
-        y: yPosition,
-        size: 12,
-      });
-      yPosition -= 20;
+    sortedMovements.forEach(movement => {
+      const productName = items.find(i => i.id === movement.product_id)?.name || 'Unknown Product';
+      const supplierName = movement.supplier_id
+        ? suppliers.find(s => s.id === movement.supplier_id)?.name || 'Unknown Supplier'
+        : 'N/A';
+      const type = movement.type === 'in' ? 'Added' : 'Removed';
+      drawText(`${formatDate(movement.date)} | ${productName} | ${supplierName} | ${movement.quantity} | ${type}`);
     });
 
-    // Save the PDF
     const pdfBytes = await pdfDoc.save();
-
-    // Trigger download
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -179,20 +152,17 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <h1>Inventory Management</h1>
         <div className="header-content">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          <button onClick={generatePDF} className="generate-report-button">
-            Generate PDF Report
-          </button>
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button onClick={generatePDF} className="generate-report-button">Generate PDF Report</button>
         </div>
       </header>
+
       <div className="table-section">
         <h2>Inventory Items</h2>
         <table className="item-table">
@@ -216,43 +186,30 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
       <div className="stats-container">
-        <div className="stat-card">
-          <h3>Total Products</h3>
-          <p>{totalProducts}</p>
-        </div>
-        <div className="stat-card low-stock">
-          <h3>Low Stock</h3>
-          <p>{lowStockItems}</p>
-        </div>
-        <div className="stat-card out-of-stock">
-          <h3>Out of Stock</h3>
-          <p>{outOfStockItems}</p>
-        </div>
+        <div className="stat-card"><h3>Total Products</h3><p>{totalProducts}</p></div>
+        <div className="stat-card low-stock"><h3>Low Stock</h3><p>{lowStockItems}</p></div>
+        <div className="stat-card out-of-stock"><h3>Out of Stock</h3><p>{outOfStockItems}</p></div>
         <div className="stat-card" onClick={handleSuppliersClick} style={{ cursor: 'pointer' }}>
-          <h3>Suppliers</h3>
-          <p>{suppliersCount}</p>
+          <h3>Suppliers</h3><p>{suppliersCount}</p>
         </div>
       </div>
 
-      {/* Recent Stock Movements */}
       <div className="stock-movements">
         <h3>Recent Stock Movements</h3>
-        <div>
-          {stockMovements.length > 0 ? (
-            stockMovements.map((movement, index) => {
-              const productName = items.find(item => item.id === movement.product_id)?.name || 'Unknown Product';
-              const supplierName = movement.supplier_id ? suppliers.find(supplier => supplier.id === movement.supplier_id)?.name : 'N/A';
-              return (
-                <div key={index}>
-                  {formatDate(movement.date)}: {productName} (Supplier: {supplierName}) {movement.quantity > 0 ? 'added' : 'removed'} {Math.abs(movement.quantity)}
-                </div>
-              );
-            })
-          ) : (
-            <div>No recent stock movements.</div>
-          )}
-        </div>
+        {stockMovements.length ? stockMovements.map((movement, idx) => {
+          const productName = items.find(i => i.id === movement.product_id)?.name || 'Unknown';
+          const supplierName = movement.supplier_id
+            ? suppliers.find(s => s.id === movement.supplier_id)?.name
+            : 'N/A';
+          const typeText = movement.type === 'in' ? 'added' : 'removed';
+          return (
+            <div key={idx}>
+              {formatDate(movement.date)}: {productName} (Supplier: {supplierName}) {typeText} {movement.quantity}
+            </div>
+          );
+        }) : <div>No recent stock movements.</div>}
       </div>
 
       {isModalOpen && (

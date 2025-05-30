@@ -68,6 +68,10 @@ const ItemList = () => {
     }
   };
 
+  const getTotalQuantity = () => {
+    return products.reduce((total, product) => total + product.quantity, 0);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -116,6 +120,21 @@ const ItemList = () => {
               </td>
             </tr>
           ))}
+        </tbody>
+      </table>
+
+      {/* Overall Quantity Table */}
+      <h3>Inventory Summary</h3>
+      <table className="item-table summary-table">
+        <thead>
+          <tr>
+            <th>Total Items in Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{getTotalQuantity()}</td>
+          </tr>
         </tbody>
       </table>
     </div>
