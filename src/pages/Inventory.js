@@ -10,6 +10,7 @@ const ItemList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrCodeData, setQrCodeData] = useState({});
+  const [isLowStockModalOpen, setLowStockModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -57,6 +58,9 @@ const ItemList = () => {
       console.log('QR code uploaded and URL updated:', qrCodeUrl);
     }
   };
+
+  const openLowStockModal = () => setLowStockModalOpen(true);
+  const closeLowStockModal = () => setLowStockModalOpen(false);
 
   const updateProductWithQrCodeUrl = async (productId, qrCodeUrl) => {
     const { error } = await supabase
@@ -137,7 +141,7 @@ const ItemList = () => {
             <h4>Total Items in Stock</h4>
             <p>{getTotalQuantity()}</p>
           </div>
-          <div className="summary-card">
+          <div className="summary-card" onClick={openLowStockModal} style={{ cursor: 'pointer' }}>
             <h4>Total Low Stock Items</h4>
             <p>{getLowStockCount()}</p>
           </div>
@@ -146,6 +150,21 @@ const ItemList = () => {
             <p>₱{getTotalInventoryValue().toFixed(2)}</p>
           </div>
         </div>
+        {isLowStockModalOpen && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={closeLowStockModal}>&times;</span>
+              <h2>Low Stock Products</h2>
+              <ul>
+                {products.filter(product => product.quantity <= 5).map(product => (
+                  <li key={product.id}>
+                    <strong>{product.name}</strong> – {product.category} – Qty: {product.quantity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

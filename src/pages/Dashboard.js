@@ -16,6 +16,10 @@ const Dashboard = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [stockMovements, setStockMovements] = useState([]);
+  const [isLowStockModalOpen, setLowStockModalOpen] = useState(false);
+  const [isOutOfStockModalOpen, setOutOfStockModalOpen] = useState(false);
+  
+  
 
   const fetchData = async () => {
     try {
@@ -79,6 +83,11 @@ const Dashboard = () => {
   };
 
   const closeModal = () => setModalOpen(false);
+  const openLowStockModal = () => setLowStockModalOpen(true);
+  const openOutOfStockModal = () => setOutOfStockModalOpen(true);
+  const closeLowStockModal = () => setLowStockModalOpen(false);
+  const closeOutOfStockModal = () => setOutOfStockModalOpen(false);
+
 
   const formatDate = (date) => {
     return new Date(date).toLocaleString([], {
@@ -189,8 +198,12 @@ const Dashboard = () => {
 
       <div className="stats-container">
         <div className="stat-card"><h3>Total Products</h3><p>{totalProducts}</p></div>
-        <div className="stat-card low-stock"><h3>Low Stock</h3><p>{lowStockItems}</p></div>
-        <div className="stat-card out-of-stock"><h3>Out of Stock</h3><p>{outOfStockItems}</p></div>
+        <div className="stat-card low-stock" onClick={openLowStockModal} style={{ cursor: 'pointer' }}>
+          <h3>Low Stock</h3><p>{lowStockItems}</p>
+        </div>
+        <div className="stat-card out-of-stock" onClick={openOutOfStockModal} style={{ cursor: 'pointer' }}>
+          <h3>Out of Stock</h3><p>{outOfStockItems}</p>
+        </div>
         <div className="stat-card" onClick={handleSuppliersClick} style={{ cursor: 'pointer' }}>
           <h3>Suppliers</h3><p>{suppliersCount}</p>
         </div>
@@ -223,6 +236,37 @@ const Dashboard = () => {
                   <strong>{supplier.name}</strong><br />
                   Contact: {supplier.contact}<br />
                   Address: {supplier.address}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+            {isLowStockModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeLowStockModal}>&times;</span>
+            <h2>Low Stock Items</h2>
+            <ul>
+              {items.filter(item => item.quantity > 0 && item.quantity <= 5).map(item => (
+                <li key={item.id}>
+                  <strong>{item.name}</strong> - {item.category} - Qty: {item.quantity}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {isOutOfStockModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeOutOfStockModal}>&times;</span>
+            <h2>Out of Stock Items</h2>
+            <ul>
+              {items.filter(item => item.quantity === 0).map(item => (
+                <li key={item.id}>
+                  <strong>{item.name}</strong> - {item.category}
                 </li>
               ))}
             </ul>
